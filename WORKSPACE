@@ -133,11 +133,20 @@ objc_library( # For the Objective-C parts
 )
 
 cc_library(
+    name = "glfw-linux",
+    srcs = COMMON_SRCS + LINUX_SRCS,
+    hdrs = COMMON_HDRS + LINUX_HDRS,
+    visibility = ["//visibility:public"],
+    defines = ["_GLFW_X11"],
+    linkopts = ["-lX11"],
+)
+
+cc_library(
     name = "glfw-3.3.9",
-    deps = [
-        ":glfw-headers",
-        ":glfw-cocoa",
-    ],
+    deps = select({
+        "@bazel_tools//src/conditions:linux_x86_64": [":glfw-headers", ":glfw-linux"],
+        "@bazel_tools//src/conditions:darwin": [":glfw-headers", ":glfw-cocoa"]
+    }),
     linkopts = select({
         "@bazel_tools//src/conditions:linux_x86_64": [],
         "@bazel_tools//src/conditions:darwin": DARWIN_LINKOPTS,
