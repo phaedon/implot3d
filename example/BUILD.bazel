@@ -1,0 +1,20 @@
+cc_library(
+    name = "glad",
+    srcs = ["glad.c"],
+    hdrs = [
+        "KHR/khrplatform.h",
+        "glad.h",
+    ],
+    include_prefix = "glad",
+)
+
+cc_binary(
+    name = "main",
+    srcs = ["main.cpp"],
+    deps = [
+        ":glad",
+        "//:implot3d",
+        "@imgui-1.91.8",
+        "@implot-0.16",
+    ],
+)
