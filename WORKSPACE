@@ -96,13 +96,6 @@ COMMON_SRCS = [
     "src/xkb_unicode.c",
 ]
 
-DARWIN_LINKOPTS = [
-    "-framework OpenGL",
-    "-framework Cocoa",
-    "-framework IOKit",
-    "-framework CoreFoundation",
-]
-
 LINUX_HDRS = [
     "src/glx_context.h",
     "src/linux_joystick.h",
@@ -129,14 +122,20 @@ objc_library( # For the Objective-C parts
         "-fno-objc-arc",
     ],
     defines = ["_GLFW_COCOA", "GLFW_INVALID_CODEPOINT"],
-    visibility = ["//visibility:public"],
+    visibility = ["//visibility:private"],
+    linkopts = [
+        "-framework OpenGL",
+        "-framework Cocoa",
+        "-framework IOKit",
+        "-framework CoreFoundation",
+    ]
 )
 
 cc_library(
     name = "glfw-linux",
     srcs = COMMON_SRCS + LINUX_SRCS,
     hdrs = COMMON_HDRS + LINUX_HDRS,
-    visibility = ["//visibility:public"],
+    visibility = ["//visibility:private"],
     defines = ["_GLFW_X11"],
     linkopts = ["-lX11"],
 )
@@ -146,10 +145,6 @@ cc_library(
     deps = select({
         "@bazel_tools//src/conditions:linux_x86_64": [":glfw-headers", ":glfw-linux"],
         "@bazel_tools//src/conditions:darwin": [":glfw-headers", ":glfw-cocoa"]
-    }),
-    linkopts = select({
-        "@bazel_tools//src/conditions:linux_x86_64": [],
-        "@bazel_tools//src/conditions:darwin": DARWIN_LINKOPTS,
     }),
     visibility = ["//visibility:public"],
 )
