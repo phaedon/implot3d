@@ -47,12 +47,13 @@ cc_library(
         "include/GLFW/glfw3.h",
         "include/GLFW/glfw3native.h",
     ],
+    includes = ["."],
     strip_include_prefix = "include",
-    includes = ['.'],
     visibility = [
         "//visibility:private",
     ],
 )
+
 DARWIN_HDRS = [
     "src/cocoa_joystick.h",
     "src/cocoa_platform.h",
@@ -114,39 +115,49 @@ LINUX_SRCS = [
     "src/x11_window.c",
 ]
 
-objc_library( # For the Objective-C parts
+objc_library(
+    # For the Objective-C parts
     name = "glfw-cocoa",
     srcs = COMMON_SRCS + DARWIN_SRCS,
     hdrs = COMMON_HDRS + DARWIN_HDRS,
     copts = [
         "-fno-objc-arc",
     ],
-    defines = ["_GLFW_COCOA", "GLFW_INVALID_CODEPOINT"],
-    visibility = ["//visibility:private"],
+    defines = [
+        "_GLFW_COCOA",
+        "GLFW_INVALID_CODEPOINT",
+    ],
     linkopts = [
         "-framework OpenGL",
         "-framework Cocoa",
         "-framework IOKit",
         "-framework CoreFoundation",
-    ]
+    ],
+    visibility = ["//visibility:private"],
 )
 
 cc_library(
     name = "glfw-linux",
     srcs = COMMON_SRCS + LINUX_SRCS,
     hdrs = COMMON_HDRS + LINUX_HDRS,
-    visibility = ["//visibility:private"],
     defines = ["_GLFW_X11"],
     linkopts = ["-lX11"],
+    visibility = ["//visibility:private"],
 )
 
 cc_library(
     name = "glfw-3.3.9",
-    deps = select({
-        "@bazel_tools//src/conditions:linux_x86_64": [":glfw-headers", ":glfw-linux"],
-        "@bazel_tools//src/conditions:darwin": [":glfw-headers", ":glfw-cocoa"]
-    }),
     visibility = ["//visibility:public"],
+    deps = select({
+        "@bazel_tools//src/conditions:linux_x86_64": [
+            ":glfw-headers",
+            ":glfw-linux",
+        ],
+        "@bazel_tools//src/conditions:darwin": [
+            ":glfw-cocoa",
+            ":glfw-headers",
+        ],
+    }),
 )
 """,
     sha256 = "a7e7faef424fcb5f83d8faecf9d697a338da7f7a906fc1afbc0e1879ef31bd53",
